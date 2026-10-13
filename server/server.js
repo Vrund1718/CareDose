@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { initDb } = require('./config/db');
+const { initDb, getDbStatus } = require('./config/db');
 
 const authRoutes = require('./routes/auth');
 const medicineRoutes = require('./routes/medicines');
@@ -27,6 +27,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     service: 'CareDose Medication & Caregiver Monitoring API',
+    database: getDbStatus(),
     timestamp: new Date().toISOString()
   });
 });

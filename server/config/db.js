@@ -54,6 +54,13 @@ async function initDb() {
   }
 }
 
+function getDbStatus() {
+  return {
+    mode: dbMode,
+    active: true
+  };
+}
+
 // Helper to execute SQL queries across MySQL or SQLite with parameterized inputs
 async function query(sql, params = []) {
   if (dbMode === 'mysql') {
@@ -307,5 +314,6 @@ async function seedInitialData() {
 module.exports = {
   initDb,
   query,
+  getDbStatus,
   getMode: () => dbMode
 };
