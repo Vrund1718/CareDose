@@ -34,10 +34,21 @@ router.get('/', verifyToken, async (req, res) => {
       return res.status(400).json({ error: 'Caregivers must specify a patient_id query parameter.' });
     }
 
-    const medicines = await db.query(
-      'SELECT * FROM medicines WHERE patient_id = ? ORDER BY id DESC',
-      [targetPatientId]
-    );
+    let sql = 'SELECT * FROM medicines WHERE patient_id = ?';
+    const params = [targetPatientId];
+
+    if (req.query.low_stock === 'true') {
+      sql += ' AND stock_qty <= refill_threshold';
+    }
+
+    if (req.query.search && req.query.search.trim()) {
+      sql += ' AND (LOWER(name) LIKE ? OR LOWER(dosage) LIKE ?)';
+      const term = `%${req.query.search.trim().toLowerCase()}%`;
+      params.push(term, term);
+    }
+
+    sql += ' ORDER BY id DESC';
+    const medicines = await db.query(sql, params);
 
     // Fetch schedules for each medicine
     for (let med of medicines) {
