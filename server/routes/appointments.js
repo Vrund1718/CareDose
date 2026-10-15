@@ -98,4 +98,47 @@ router.delete('/:id', verifyToken, async (req, res) => {
   }
 });
 
+// PUT /api/appointments/:id - Update appointment details or notes (Patient only)
+router.put('/:id', verifyToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'patient') {
+      return res.status(403).json({ error: 'Only patients can update appointments.' });
+    }
+
+    const apptId = Number(req.params.id);
+    const existing = await db.query('SELECT * FROM appointments WHERE id = ? AND patient_id = ?', [apptId, req.user.id]);
+    if (!existing || existing.length === 0) {
+      return res.status(404).json({ error: 'Appointment not found or unauthorized.' });
+    }
+
+    const current = existing[0];
+    const doctor_name = req.body.doctor_name ? req.body.doctor_name.trim() : current.doctor_name;
+    const notes = req.body.notes !== undefined ? req.body.notes.trim() : current.notes;
+    let formattedDateTime = current.date_time;
+
+    if (req.body.date_time) {
+      formattedDateTime = new Date(req.body.date_time).toISOString().replace('T', ' ').substring(0, 19);
+    }
+
+    await db.query(
+      'UPDATE appointments SET doctor_name = ?, date_time = ?, notes = ? WHERE id = ? AND patient_id = ?',
+      [doctor_name, formattedDateTime, notes, apptId, req.user.id]
+    );
+
+    res.json({
+      message: 'Appointment updated successfully',
+      appointment: {
+        id: apptId,
+        patient_id: req.user.id,
+        doctor_name,
+        date_time: formattedDateTime,
+        notes
+      }
+    });
+  } catch (err) {
+    console.error('Update appointment error:', err);
+    res.status(500).json({ error: 'Failed to update appointment.' });
+  }
+});
+
 module.exports = router;
