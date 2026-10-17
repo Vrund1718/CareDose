@@ -27,6 +27,26 @@ export default function DoseCard({ dose, onStatusChange, isCaregiver = false, on
     }
   };
 
+  // Determine if slot is past or upcoming for pending doses
+  const getSlotTiming = () => {
+    if (status !== 'pending' || !time_slot) return null;
+    try {
+      const now = new Date();
+      const [sh, sm] = time_slot.split(':').map(Number);
+      const slotTime = new Date();
+      slotTime.setHours(sh, sm, 0, 0);
+
+      const diffMins = Math.round((slotTime - now) / (1000 * 60));
+      if (diffMins < -30) return { label: 'Past Due', className: 'bg-amber-100 text-amber-800 border-amber-200' };
+      if (diffMins >= -30 && diffMins <= 30) return { label: 'Due Now', className: 'bg-teal-100 text-teal-800 border-teal-200 animate-pulse' };
+      return { label: 'Upcoming', className: 'bg-slate-100 text-slate-700 border-slate-200' };
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const timing = getSlotTiming();
+
   return (
     <div className={`relative bg-white rounded-2xl border transition-all duration-200 p-5 shadow-sm hover:shadow-md ${
       status === 'taken' 
@@ -59,11 +79,16 @@ export default function DoseCard({ dose, onStatusChange, isCaregiver = false, on
         </div>
 
         {/* Time Slot Badge */}
-        <div className="flex flex-col items-end">
+        <div className="flex flex-col items-end space-y-1">
           <div className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200">
             <Clock className="w-3.5 h-3.5 text-teal-600" />
             <span>{formatTimeSlot(time_slot)}</span>
           </div>
+          {timing && (
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${timing.className}`}>
+              {timing.label}
+            </span>
+          )}
         </div>
       </div>
 
