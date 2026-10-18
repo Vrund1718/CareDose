@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Pill, Plus, Calendar, Clock, AlertTriangle, CheckCircle2, RefreshCw, Copy, Check, Users, Edit3, Trash2, HeartHandshake } from 'lucide-react';
+import { Pill, Plus, Calendar, Clock, AlertTriangle, CheckCircle2, RefreshCw, Copy, Check, Users, Edit3, Trash2, HeartHandshake, Search } from 'lucide-react';
 import { api } from '../services/api';
 import DoseCard from './DoseCard';
 import MedicineForm from './MedicineForm';
@@ -14,6 +14,8 @@ export default function PatientDashboard({ user }) {
   const [reportData, setReportData] = useState(null);
 
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'pending', 'taken', 'missed'
+  const [medSearch, setMedSearch] = useState('');
+  const [medFilter, setMedFilter] = useState('all'); // 'all', 'low-stock'
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState('');
 
@@ -140,6 +142,16 @@ export default function PatientDashboard({ user }) {
     if (activeTab === 'pending') return d.status === 'pending';
     if (activeTab === 'taken') return d.status === 'taken';
     if (activeTab === 'missed') return d.status === 'missed';
+    return true;
+  });
+
+  // Filter medicines by search query and stock filter
+  const filteredMedicines = medicines.filter(m => {
+    if (medFilter === 'low-stock' && m.stock_qty > m.refill_threshold) return false;
+    if (medSearch.trim()) {
+      const q = medSearch.toLowerCase();
+      return m.name.toLowerCase().includes(q) || m.dosage.toLowerCase().includes(q) || m.frequency.toLowerCase().includes(q);
+    }
     return true;
   });
 
@@ -270,26 +282,59 @@ export default function PatientDashboard({ user }) {
 
           {/* All Medications Cabinet */}
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h3 className="text-lg font-black text-slate-900 flex items-center space-x-2">
                   <Pill className="w-5 h-5 text-teal-600" />
-                  <span>My Medication Cabinet ({medicines.length})</span>
+                  <span>My Medication Cabinet ({filteredMedicines.length})</span>
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">Manage prescription details, frequencies, and stock thresholds</p>
               </div>
 
               <button
                 onClick={() => { setEditingMed(null); setIsMedModalOpen(true); }}
-                className="py-2 px-3.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs flex items-center space-x-1.5 transition"
+                className="py-2 px-3.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs flex items-center space-x-1.5 transition self-start sm:self-auto"
               >
                 <Plus className="w-4 h-4 text-teal-700" />
                 <span>Add Medicine</span>
               </button>
             </div>
 
+            {/* Quick Search & Filters */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search medications by name or dosage..."
+                  value={medSearch}
+                  onChange={(e) => setMedSearch(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium focus:outline-teal-500 transition"
+                />
+              </div>
+
+              <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-bold shrink-0">
+                <button
+                  onClick={() => setMedFilter('all')}
+                  className={`px-3 py-1.5 rounded-lg transition ${
+                    medFilter === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500'
+                  }`}
+                >
+                  All ({medicines.length})
+                </button>
+                <button
+                  onClick={() => setMedFilter('low-stock')}
+                  className={`px-3 py-1.5 rounded-lg transition ${
+                    medFilter === 'low-stock' ? 'bg-white text-rose-700 shadow-xs' : 'text-slate-500'
+                  }`}
+                >
+                  Low Stock ({lowStockMeds.length})
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {medicines.map((med) => (
+              {filteredMedicines.map((med) => (
                 <div key={med.id} className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between space-y-3">
                   <div className="flex items-start justify-between">
                     <div>
