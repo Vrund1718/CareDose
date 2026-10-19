@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { initDb, getDbStatus } = require('./config/db');
+const { securityHeaders, requestLogger, rateLimiter } = require('./middleware/security');
 
 const authRoutes = require('./routes/auth');
 const medicineRoutes = require('./routes/medicines');
@@ -12,6 +13,10 @@ const reportRoutes = require('./routes/reports');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Security and Logging Middleware
+app.use(securityHeaders);
+app.use(requestLogger);
 
 // Enable CORS & Body Parsing
 app.use(cors({
@@ -33,7 +38,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Register API Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', rateLimiter({ max: 60, windowMs: 15 * 60 * 1000 }), authRoutes);
 app.use('/api/medicines', medicineRoutes);
 app.use('/api/caregivers', caregiverRoutes);
 app.use('/api/appointments', appointmentRoutes);
