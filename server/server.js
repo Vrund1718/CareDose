@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 const { initDb, getDbStatus } = require('./config/db');
 const { securityHeaders, requestLogger, rateLimiter } = require('./middleware/security');
 
@@ -48,8 +50,18 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api', scheduleRoutes);
 
-// 404 Handler for undefined routes
-app.use((req, res, next) => {
+// Serve frontend build if client/dist exists (unified single-service deployment)
+const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
+
+// 404 Handler for undefined API routes
+app.use('/api/*', (req, res) => {
   res.status(404).json({ error: `Route ${req.method} ${req.originalUrl} not found.` });
 });
 
