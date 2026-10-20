@@ -9,11 +9,19 @@ let sqliteDb = null;
 
 // Initialize Database connection
 async function initDb() {
-  const host = process.env.DB_HOST || 'localhost';
+  const host = process.env.DB_HOST || (process.env.NODE_ENV === 'production' ? '' : 'localhost');
   const user = process.env.DB_USER || 'root';
   const password = process.env.DB_PASSWORD || '';
   const database = process.env.DB_NAME || 'caredose_db';
   const port = process.env.DB_PORT || 3306;
+
+  // If no DB_HOST is provided or DB_ENGINE is explicitly sqlite, skip MySQL check
+  if (!host || process.env.DB_ENGINE === 'sqlite') {
+    console.log('[DB] Using embedded relational storage (zero external configuration required).');
+    dbMode = 'sqlite';
+    await initSQLite();
+    return;
+  }
 
   try {
     // Attempt MySQL connection
