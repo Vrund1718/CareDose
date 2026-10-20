@@ -117,9 +117,9 @@ appointments (id, patient_id, doctor_name, date_time, notes, created_at)
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/auth/register` | Register new Patient or Caregiver | No |
-| `POST` | `/api/auth/login` | Authenticate user & return JWT token | No |
+| `POST` | `/api/auth/login` | Authenticate user & return JWT token (Rate-limited) | No |
 | `GET` | `/api/auth/me` | Fetch authenticated user profile | Yes |
-| `GET` | `/api/medicines` | Get medicines for patient (or linked patient) | Yes |
+| `GET` | `/api/medicines` | Get medicines (Supports `search` & `low_stock` filters) | Yes |
 | `POST` | `/api/medicines` | Create medicine with schedules | Yes (Patient) |
 | `PUT` | `/api/medicines/:id` | Update medicine & time slots | Yes (Patient) |
 | `DELETE` | `/api/medicines/:id` | Delete medicine | Yes (Patient) |
@@ -131,6 +131,7 @@ appointments (id, patient_id, doctor_name, date_time, notes, created_at)
 | `GET` | `/api/caregivers/alerts` | Fetch active missed-dose & low-stock alerts | Yes (Caregiver) |
 | `GET` | `/api/appointments` | Fetch appointments for patient | Yes |
 | `POST` | `/api/appointments` | Schedule new doctor appointment | Yes (Patient) |
+| `PUT` | `/api/appointments/:id` | Update doctor appointment or consultation notes | Yes (Patient) |
 | `DELETE` | `/api/appointments/:id` | Delete doctor appointment | Yes (Patient) |
 | `GET` | `/api/reports/adherence` | Generate weekly & monthly adherence report | Yes |
 
