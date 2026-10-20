@@ -318,7 +318,7 @@ export default function CaregiverDashboard({ user }) {
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Invite Code / Patient Email</label>
                 <input
                   type="text"
-                  placeholder="e.g. PAT-8842-CD or eleanor@caredose.com"
+                  placeholder="e.g. PAT-8842-CD or patient@caredose.com"
                   value={inviteInput}
                   onChange={(e) => setInviteInput(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-slate-900 text-sm font-semibold focus:outline-none focus:border-sky-500"

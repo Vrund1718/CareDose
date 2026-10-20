@@ -2,11 +2,11 @@
 
 USE caredose_db;
 
--- Demo Patient: Eleanor Vance (password: Password123!)
--- Demo Caregiver: Dr. Marcus Vance (password: Password123!)
+-- Demo Patient: Vrund Sutariya (password: Password123!)
+-- Demo Caregiver: Vishesh Shah (password: Password123!)
 INSERT INTO users (id, name, email, password_hash, role, invite_code) VALUES
-(1, 'Eleanor Vance', 'patient@caredose.com', '$2a$10$wE0vVd4Z.3h3fQvL/BqR3e5P6m5n5k5j5h5g5f5e5d5c5b5a5', 'patient', 'PAT-8842-CD'),
-(2, 'Dr. Marcus Vance', 'caregiver@caredose.com', '$2a$10$wE0vVd4Z.3h3fQvL/BqR3e5P6m5n5k5j5h5g5f5e5d5c5b5a5', 'caregiver', NULL)
+(1, 'Vrund Sutariya', 'patient@caredose.com', '$2a$10$wE0vVd4Z.3h3fQvL/BqR3e5P6m5n5k5j5h5g5f5e5d5c5b5a5', 'patient', 'PAT-8842-CD'),
+(2, 'Vishesh Shah', 'caregiver@caredose.com', '$2a$10$wE0vVd4Z.3h3fQvL/BqR3e5P6m5n5k5j5h5g5f5e5d5c5b5a5', 'caregiver', NULL)
 ON DUPLICATE KEY UPDATE name=VALUES(name);
 
 -- Link Caregiver and Patient

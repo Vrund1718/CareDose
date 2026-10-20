@@ -251,16 +251,16 @@ async function seedInitialData() {
       const salt = await bcrypt.genSalt(10);
       const hashedPass = await bcrypt.hash('Password123!', salt);
 
-      // Seed Patient: Eleanor Vance
+      // Seed Patient: Vrund Sutariya
       await query(
         'INSERT INTO users (name, email, password_hash, role, invite_code) VALUES (?, ?, ?, ?, ?)',
-        ['Eleanor Vance', 'patient@caredose.com', hashedPass, 'patient', 'PAT-8842-CD']
+        ['Vrund Sutariya', 'patient@caredose.com', hashedPass, 'patient', 'PAT-8842-CD']
       );
 
-      // Seed Caregiver: Dr. Marcus Vance
+      // Seed Caregiver: Vishesh Shah
       await query(
         'INSERT INTO users (name, email, password_hash, role, invite_code) VALUES (?, ?, ?, ?, ?)',
-        ['Dr. Marcus Vance', 'caregiver@caredose.com', hashedPass, 'caregiver', null]
+        ['Vishesh Shah', 'caregiver@caredose.com', hashedPass, 'caregiver', null]
       );
 
       // Link Caregiver (id: 2) to Patient (id: 1)
@@ -269,7 +269,7 @@ async function seedInitialData() {
         [1, 2, 'active']
       );
 
-      // Seed Medicines for Eleanor Vance
+      // Seed Medicines for Vrund Sutariya
       const res1 = await query(
         'INSERT INTO medicines (patient_id, name, dosage, frequency, stock_qty, refill_threshold) VALUES (?, ?, ?, ?, ?, ?)',
         [1, 'Lisinopril', '10 mg', 'Twice Daily', 14, 10]
@@ -297,22 +297,24 @@ async function seedInitialData() {
       // Seed Appointments
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 3);
+      tomorrow.setHours(14, 30, 0, 0);
       const nextWeek = new Date();
       nextWeek.setDate(nextWeek.getDate() + 10);
+      nextWeek.setHours(11, 0, 0, 0);
 
       await query(
         'INSERT INTO appointments (patient_id, doctor_name, date_time, notes) VALUES (?, ?, ?, ?)',
-        [1, 'Dr. Sarah Jenkins (Cardiologist)', tomorrow.toISOString().replace('T', ' ').substring(0, 19), 'Routine blood pressure review and lab report check']
+        [1, 'Dr. Sarah Jenkins (Cardiologist)', tomorrow.toISOString(), 'Routine blood pressure review and lab report check']
       );
 
       await query(
         'INSERT INTO appointments (patient_id, doctor_name, date_time, notes) VALUES (?, ?, ?, ?)',
-        [1, 'Dr. Robert Chen (Endocrinologist)', nextWeek.toISOString().replace('T', ' ').substring(0, 19), 'Quarterly HbA1c screening consultation']
+        [1, 'Dr. Robert Chen (Endocrinologist)', nextWeek.toISOString(), 'Quarterly HbA1c screening consultation']
       );
 
       console.log('[DB] Demo data seeded successfully!');
-      console.log(' - Patient: patient@caredose.com / Password123! (Invite Code: PAT-8842-CD)');
-      console.log(' - Caregiver: caregiver@caredose.com / Password123!');
+      console.log(' - Patient: patient@caredose.com / Password123! (Vrund Sutariya - Invite Code: PAT-8842-CD)');
+      console.log(' - Caregiver: caregiver@caredose.com / Password123! (Vishesh Shah)');
     }
   } catch (err) {
     console.error('[DB Error] Failed to seed initial data:', err);

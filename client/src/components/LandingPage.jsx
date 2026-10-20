@@ -62,14 +62,14 @@ export default function LandingPage({ onOpenAuth, onQuickDemo }) {
             className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-800 text-xs font-bold transition shadow-xs hover:scale-105"
           >
             <Users className="w-3.5 h-3.5 text-teal-600" />
-            <span>Eleanor Vance (Patient)</span>
+            <span>Vrund Sutariya (Patient)</span>
           </button>
           <button
             onClick={() => onQuickDemo('caregiver@caredose.com', 'caregiver')}
             className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 text-xs font-bold transition shadow-xs hover:scale-105"
           >
             <Stethoscope className="w-3.5 h-3.5 text-sky-600" />
-            <span>Dr. Marcus Vance (Caregiver)</span>
+            <span>Vishesh Shah (Caregiver)</span>
           </button>
         </div>
 

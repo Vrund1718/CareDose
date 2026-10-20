@@ -32,9 +32,27 @@ export default function MedicineForm({ isOpen, onClose, onSave, initialData = nu
 
   if (!isOpen) return null;
 
+  const handleFrequencyChange = (newFreq) => {
+    setFrequency(newFreq);
+    // Automatically configure default time slots matching the chosen frequency
+    if (newFreq === 'Twice daily') {
+      setTimeSlots(['08:00', '20:00']);
+    } else if (newFreq === 'Three times daily') {
+      setTimeSlots(['08:00', '14:00', '20:00']);
+    } else if (newFreq === 'Every 8 hours') {
+      setTimeSlots(['08:00', '16:00', '00:00']);
+    } else if (newFreq === 'Once daily') {
+      setTimeSlots(['08:00']);
+    }
+  };
+
   const handleAddTimeSlot = (presetTime = '') => {
     const slot = presetTime || '12:00';
-    setTimeSlots([...timeSlots, slot]);
+    if (!timeSlots.includes(slot)) {
+      setTimeSlots([...timeSlots, slot]);
+    } else {
+      setTimeSlots([...timeSlots, '16:00']);
+    }
   };
 
   const handleRemoveTimeSlot = (index) => {
@@ -57,6 +75,15 @@ export default function MedicineForm({ isOpen, onClose, onSave, initialData = nu
     if (!dosage.trim()) return setError('Please enter dosage (e.g., 10 mg).');
     if (!stockQty || isNaN(stockQty) || Number(stockQty) < 0) return setError('Please enter a valid stock quantity.');
 
+    // Ensure adequate time slots for multi-dose frequency
+    let finalSlots = [...timeSlots].filter(s => s && s.trim());
+    if (frequency === 'Twice daily' && finalSlots.length < 2) {
+      finalSlots.push('20:00');
+    } else if (frequency === 'Three times daily' && finalSlots.length < 3) {
+      if (!finalSlots.includes('14:00')) finalSlots.push('14:00');
+      if (!finalSlots.includes('20:00')) finalSlots.push('20:00');
+    }
+
     try {
       setLoading(true);
       setError('');
@@ -67,7 +94,7 @@ export default function MedicineForm({ isOpen, onClose, onSave, initialData = nu
         frequency: frequency.trim(),
         stock_qty: Number(stockQty),
         refill_threshold: Number(refillThreshold),
-        time_slots: timeSlots
+        time_slots: finalSlots
       });
       onClose();
     } catch (err) {
@@ -138,13 +165,13 @@ export default function MedicineForm({ isOpen, onClose, onSave, initialData = nu
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Frequency</label>
               <select
                 value={frequency}
-                onChange={(e) => setFrequency(e.target.value)}
+                onChange={(e) => handleFrequencyChange(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-slate-900 text-sm font-medium bg-white"
               >
-                <option value="Once daily">Once daily</option>
-                <option value="Twice daily">Twice daily</option>
-                <option value="Three times daily">Three times daily</option>
-                <option value="Every 8 hours">Every 8 hours</option>
+                <option value="Once daily">Once daily (1 dose/day)</option>
+                <option value="Twice daily">Twice daily (2 doses/day - Morning & Night)</option>
+                <option value="Three times daily">Three times daily (3 doses/day)</option>
+                <option value="Every 8 hours">Every 8 hours (3 doses/day)</option>
                 <option value="As needed">As needed</option>
               </select>
             </div>
@@ -178,10 +205,15 @@ export default function MedicineForm({ isOpen, onClose, onSave, initialData = nu
           {/* Time Slots Section */}
           <div className="pt-2">
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center space-x-1">
-                <Clock className="w-3.5 h-3.5 text-teal-600" />
-                <span>Scheduled Time Slots</span>
-              </label>
+              <div className="flex items-center space-x-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center space-x-1">
+                  <Clock className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Scheduled Time Slots</span>
+                </label>
+                <span className="px-2 py-0.5 rounded-md bg-teal-100 text-teal-800 text-[10px] font-bold">
+                  {timeSlots.length} daily alarm{timeSlots.length > 1 ? 's' : ''}
+                </span>
+              </div>
               <div className="flex items-center space-x-1 text-[11px]">
                 <button type="button" onClick={() => handleAddTimeSlot('08:00')} className="px-2 py-0.5 rounded bg-slate-100 hover:bg-teal-50 text-slate-700 font-medium">+ 8 AM</button>
                 <button type="button" onClick={() => handleAddTimeSlot('14:00')} className="px-2 py-0.5 rounded bg-slate-100 hover:bg-teal-50 text-slate-700 font-medium">+ 2 PM</button>

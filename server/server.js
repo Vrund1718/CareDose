@@ -12,6 +12,7 @@ const scheduleRoutes = require('./routes/schedules');
 const caregiverRoutes = require('./routes/caregivers');
 const appointmentRoutes = require('./routes/appointments');
 const reportRoutes = require('./routes/reports');
+const passportRoutes = require('./routes/passport');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -45,6 +46,7 @@ app.use('/api/medicines', medicineRoutes);
 app.use('/api/caregivers', caregiverRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/passport', passportRoutes);
 
 // Schedules & Doses API Routes (/api/schedules/today & /api/doses/:id/status)
 app.use('/api/schedules', scheduleRoutes);

@@ -96,6 +96,14 @@ export const api = {
         body: JSON.stringify({ status })
       });
       return handleResponse(res);
+    },
+    logAdhoc: async (medicineId) => {
+      const res = await fetch(`${BASE_URL}/schedules/log-adhoc`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+        body: JSON.stringify({ medicine_id: medicineId })
+      });
+      return handleResponse(res);
     }
   },
 
@@ -158,6 +166,14 @@ export const api = {
     getAdherence: async (patientId) => {
       const url = patientId ? `${BASE_URL}/reports/adherence?patient_id=${patientId}` : `${BASE_URL}/reports/adherence`;
       const res = await fetch(url, { headers: { ...getAuthHeader() } });
+      return handleResponse(res);
+    }
+  },
+
+  // Public Emergency Passport API (No auth required)
+  passport: {
+    get: async (code) => {
+      const res = await fetch(`${BASE_URL}/passport/${code}`);
       return handleResponse(res);
     }
   }

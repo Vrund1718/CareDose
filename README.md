@@ -262,8 +262,8 @@ For instant testing, use the 1-click **Quick Demo Access** buttons on the sign-i
 
 | Role | Email | Password | Details |
 | :--- | :--- | :--- | :--- |
-| **Patient** | `patient@caredose.com` | `Password123!` | Eleanor Vance (Invite Code: `PAT-8842-CD`) |
-| **Caregiver** | `caregiver@caredose.com` | `Password123!` | Dr. Marcus Vance (Linked to Eleanor) |
+| **Patient** | `patient@caredose.com` | `Password123!` | Vrund Sutariya (Invite Code: `PAT-8842-CD`) |
+| **Caregiver** | `caregiver@caredose.com` | `Password123!` | Vishesh Shah (Linked to Vrund) |
 
 ---
 
