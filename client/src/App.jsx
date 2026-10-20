@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
+import LandingPage from './components/LandingPage';
 import AuthModal from './components/AuthModal';
 import PatientDashboard from './components/PatientDashboard';
 import CaregiverDashboard from './components/CaregiverDashboard';
@@ -10,6 +11,8 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authTab, setAuthTab] = useState('login');
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -44,6 +47,28 @@ export default function App() {
     showToast('You have been logged out.', 'info');
   };
 
+  const handleOpenAuth = (tab = 'login') => {
+    setAuthTab(tab);
+    setIsAuthModalOpen(true);
+  };
+
+  const handleQuickDemo = async (email, role) => {
+    try {
+      showToast('Signing in with demo account...', 'info');
+      const data = await api.auth.login({
+        email,
+        password: 'Password123!'
+      });
+      if (data.token) {
+        localStorage.setItem('caredose_token', data.token);
+        setUser(data.user);
+        showToast(`Welcome back, ${data.user.name}!`);
+      }
+    } catch (err) {
+      showToast('Demo sign-in failed: ' + err.message, 'error');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -57,11 +82,18 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
-      <Navbar user={user} onLogout={handleLogout} />
+      <Navbar 
+        user={user} 
+        onLogout={handleLogout} 
+        onOpenAuth={handleOpenAuth} 
+      />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12">
         {!user ? (
-          <AuthModal onAuthSuccess={(userData) => { setUser(userData); showToast(`Welcome back, ${userData.name}!`); }} />
+          <LandingPage 
+            onOpenAuth={handleOpenAuth} 
+            onQuickDemo={handleQuickDemo} 
+          />
         ) : user.role === 'patient' ? (
           <PatientDashboard user={user} showToast={showToast} />
         ) : (
@@ -69,6 +101,21 @@ export default function App() {
         )}
       </main>
 
+      {/* Auth Modal Overlay */}
+      {isAuthModalOpen && (
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          initialTab={authTab}
+          onClose={() => setIsAuthModalOpen(false)}
+          onAuthSuccess={(userData) => {
+            setUser(userData);
+            setIsAuthModalOpen(false);
+            showToast(`Welcome back, ${userData.name}!`);
+          }}
+        />
+      )}
+
+      {/* Toast Feedback */}
       {toast && (
         <Toast
           message={toast.message}

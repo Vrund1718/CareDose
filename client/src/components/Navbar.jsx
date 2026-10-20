@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Pill, Heart, Shield, LogOut, Copy, Check, UserCheck, Stethoscope, User } from 'lucide-react';
+import { Pill, Heart, Shield, LogOut, Copy, Check, UserCheck, Stethoscope, User, LogIn } from 'lucide-react';
 
-export default function Navbar({ user, onLogout }) {
+export default function Navbar({ user, onLogout, onOpenAuth }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyInvite = () => {
@@ -18,8 +18,8 @@ export default function Navbar({ user, onLogout }) {
         <div className="flex items-center justify-between h-20">
           
           {/* Logo & Platform Title */}
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-600 via-teal-500 to-sky-500 flex items-center justify-center shadow-lg shadow-teal-500/20 text-white transform transition hover:scale-105">
+          <a href="/" className="flex items-center space-x-3 group">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-600 via-teal-500 to-sky-500 flex items-center justify-center shadow-lg shadow-teal-500/20 text-white transform transition group-hover:scale-105">
               <Pill className="w-7 h-7 stroke-[2.5]" />
             </div>
             <div>
@@ -31,9 +31,34 @@ export default function Navbar({ user, onLogout }) {
               </div>
               <p className="text-xs text-slate-500 font-medium hidden sm:block">Medication & Caregiver Monitoring System</p>
             </div>
-          </div>
+          </a>
 
-          {/* User Status & Controls */}
+          {/* Top Right: When NOT Logged In */}
+          {!user && (
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <nav className="hidden md:flex items-center space-x-6 text-sm font-semibold text-slate-600 mr-2">
+                <a href="#features" className="hover:text-teal-600 transition">Features</a>
+                <a href="#how-it-works" className="hover:text-teal-600 transition">How It Works</a>
+              </nav>
+
+              <button
+                onClick={() => onOpenAuth && onOpenAuth('login')}
+                className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-slate-700 hover:text-teal-700 hover:bg-slate-100 font-bold text-xs sm:text-sm transition"
+              >
+                <LogIn className="w-4 h-4 text-teal-600" />
+                <span>Log In</span>
+              </button>
+
+              <button
+                onClick={() => onOpenAuth && onOpenAuth('register')}
+                className="flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-teal-600/20 transition active:scale-95"
+              >
+                <span>Get Started</span>
+              </button>
+            </div>
+          )}
+
+          {/* User Status & Controls when Logged In */}
           {user && (
             <div className="flex items-center space-x-3 sm:space-x-4">
               

@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
-import { Pill, Heart, Shield, Lock, Mail, User, AlertCircle, ArrowRight, Stethoscope } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Pill, Heart, Shield, Lock, Mail, User, AlertCircle, ArrowRight, Stethoscope, X } from 'lucide-react';
 import { api } from '../services/api';
 
-export default function AuthModal({ onAuthSuccess }) {
-  const [isLogin, setIsLogin] = useState(true);
+export default function AuthModal({ onAuthSuccess, isOpen = true, onClose, initialTab = 'login' }) {
+  const [isLogin, setIsLogin] = useState(initialTab === 'login');
   const [role, setRole] = useState('patient');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLogin(initialTab === 'login');
+  }, [initialTab]);
+
+  if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,6 +33,7 @@ export default function AuthModal({ onAuthSuccess }) {
       if (data.token) {
         localStorage.setItem('caredose_token', data.token);
         onAuthSuccess(data.user);
+        if (onClose) onClose();
       }
     } catch (err) {
       setError(err.message || 'Authentication failed. Please check credentials.');
@@ -46,6 +53,7 @@ export default function AuthModal({ onAuthSuccess }) {
       if (data.token) {
         localStorage.setItem('caredose_token', data.token);
         onAuthSuccess(data.user);
+        if (onClose) onClose();
       }
     } catch (err) {
       setError('Demo login failed: ' + err.message);
@@ -55,20 +63,31 @@ export default function AuthModal({ onAuthSuccess }) {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+      <div className="relative max-w-md w-full my-8 space-y-6 animate-in zoom-in-95 fade-in duration-200">
         
+        {/* Close Button */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-2 right-2 z-10 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-500 hover:text-slate-800 shadow-md border border-slate-200 flex items-center justify-center transition hover:scale-105"
+            aria-label="Close modal"
+          >
+            <X className="w-4 h-4 stroke-[2.5]" />
+          </button>
+        )}
+
         {/* App Branding */}
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-tr from-teal-600 to-sky-500 text-white shadow-xl shadow-teal-500/20 mb-4 transform transition hover:scale-105">
-            <Pill className="w-9 h-9 stroke-[2.2]" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-teal-600 to-sky-500 text-white shadow-xl shadow-teal-500/20 mb-3 transform transition hover:scale-105">
+            <Pill className="w-8 h-8 stroke-[2.2]" />
           </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">Care<span className="text-teal-600">Dose</span></h2>
-          <p className="mt-1 text-sm text-slate-500 font-medium">Medication Reminder & Remote Caregiver System</p>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Care<span className="text-teal-600">Dose</span></h2>
+          <p className="text-xs text-slate-500 font-medium">Medication Reminder & Remote Caregiver System</p>
         </div>
 
         {/* Auth Form Box */}
-        <div className="bg-white rounded-3xl p-7 sm:p-8 shadow-xl border border-slate-200/80">
+        <div className="bg-white rounded-3xl p-7 sm:p-8 shadow-2xl border border-slate-200/80">
           
           {/* Tab Switcher */}
           <div className="flex bg-slate-100 p-1 rounded-2xl mb-6">
@@ -90,8 +109,9 @@ export default function AuthModal({ onAuthSuccess }) {
             </button>
           </div>
 
+          {/* Error Banner */}
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center space-x-2">
+            <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-center space-x-2 text-rose-700 text-xs font-bold">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
               <span>{error}</span>
             </div>
@@ -99,15 +119,47 @@ export default function AuthModal({ onAuthSuccess }) {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             
+            {/* If Register: Role Selector & Name */}
             {!isLogin && (
               <>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Full Name</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Select Role</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setRole('patient')}
+                      className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition ${
+                        role === 'patient'
+                          ? 'border-teal-600 bg-teal-50/70 text-teal-900 ring-2 ring-teal-600/20'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <User className="w-4 h-4 text-teal-600" />
+                      <span>Patient</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setRole('caregiver')}
+                      className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center space-x-2 transition ${
+                        role === 'caregiver'
+                          ? 'border-sky-600 bg-sky-50/70 text-sky-900 ring-2 ring-sky-600/20'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <Stethoscope className="w-4 h-4 text-sky-600" />
+                      <span>Caregiver</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Full Name</label>
                   <div className="relative">
                     <User className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
                     <input
                       type="text"
-                      placeholder="e.g. Eleanor Vance"
+                      placeholder="e.g. John Doe"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-slate-900 text-sm font-medium"
@@ -115,42 +167,12 @@ export default function AuthModal({ onAuthSuccess }) {
                     />
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Account Role</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setRole('patient')}
-                      className={`p-3 rounded-xl border text-left flex items-center space-x-2 transition ${
-                        role === 'patient' 
-                          ? 'border-teal-500 bg-teal-50/60 text-teal-900 ring-2 ring-teal-500/20' 
-                          : 'border-slate-200 hover:bg-slate-50 text-slate-700'
-                      }`}
-                    >
-                      <User className="w-4 h-4 text-teal-600" />
-                      <span className="text-xs font-bold">Patient</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setRole('caregiver')}
-                      className={`p-3 rounded-xl border text-left flex items-center space-x-2 transition ${
-                        role === 'caregiver' 
-                          ? 'border-sky-500 bg-sky-50/60 text-sky-900 ring-2 ring-sky-500/20' 
-                          : 'border-slate-200 hover:bg-slate-50 text-slate-700'
-                      }`}
-                    >
-                      <Stethoscope className="w-4 h-4 text-sky-600" />
-                      <span className="text-xs font-bold">Caregiver</span>
-                    </button>
-                  </div>
-                </div>
               </>
             )}
 
+            {/* Email Address */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Email Address</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
               <div className="relative">
                 <Mail className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
                 <input
@@ -164,8 +186,9 @@ export default function AuthModal({ onAuthSuccess }) {
               </div>
             </div>
 
+            {/* Password */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Password</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Password</label>
               <div className="relative">
                 <Lock className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
                 <input
