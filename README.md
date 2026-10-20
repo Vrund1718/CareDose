@@ -89,11 +89,94 @@ CareDose/
 
 ---
 
-## 🏗️ 3-Tier Architecture
+## 🏗️ 3-Tier Architecture & System Diagrams
 
-1. **Presentation Layer (Frontend)**: React 19 (functional components, hooks) styled with Tailwind CSS and Lucide React icons, bundled with Vite.
-2. **Application / Logic Layer (Backend)**: Express.js REST API with JWT middleware, input validation, and security hardening.
-3. **Data Layer (Database)**: MySQL relational schema with parameterized queries (`mysql2/promise`) to prevent SQL injection. *(Includes automatic fallback to embedded SQLite relational storage if local MySQL daemon is offline)*.
+CareDose strictly implements an enterprise-grade **3-Tier Web Architecture**:
+
+### 1. High-Level Architectural Flow Diagram
+
+```mermaid
+graph TD
+    subgraph Presentation_Layer["📱 Presentation Layer (Frontend - React 19 + Vite)"]
+        UI_Patient["Patient Portal (Dashboard, DoseCard, Cabinet, Appointments)"]
+        UI_Caregiver["Caregiver Station (Linked Patients, Live Alerts, Adherence Stats)"]
+        UI_Landing["Landing & Auth (Session State, JWT Storage, Invite Codes)"]
+        API_Client["API Service Client (services/api.js + Fetch API)"]
+    end
+
+    subgraph Application_Layer["⚙️ Application / Logic Layer (Node.js + Express REST API)"]
+        GW["Express Gateway / CORS / Security Headers / Rate Limiter"]
+        Auth_MW["Auth Middleware (verifyToken & requireRole)"]
+        Valid_MW["Validation Middleware (validateMedicine & validateAppointment)"]
+        
+        subgraph Controllers["Route Handlers (/api/*)"]
+            R_Auth["/api/auth (Login, Register, Session)"]
+            R_Med["/api/medicines (Prescriptions, Search, Stock Refill)"]
+            R_Sched["/api/schedules (Today's Slots, Dose Status)"]
+            R_Care["/api/caregivers (Linking, Alerts, Supervision)"]
+            R_Appt["/api/appointments (Doctor Consultations)"]
+            R_Rep["/api/reports (Weekly/Monthly Analytics)"]
+        end
+    end
+
+    subgraph Data_Layer["🗄️ Data Layer (Relational Storage)"]
+        DB_Adapter["Multi-Engine DB Adapter (config/db.js)<br/>(Auto Fallback & Parameterized Prepared Statements)"]
+        MySQL_DB[("Primary Database<br/>MySQL 8.0+")]
+        SQLite_DB[("Embedded Fallback<br/>SQLite (Zero-Config)")]
+    end
+
+    UI_Patient --> API_Client
+    UI_Caregiver --> API_Client
+    UI_Landing --> API_Client
+
+    API_Client -- "HTTPS / JSON REST API" --> GW
+    GW --> Auth_MW
+    GW --> Valid_MW
+    Auth_MW --> Controllers
+    Valid_MW --> Controllers
+
+    Controllers --> DB_Adapter
+    DB_Adapter -.->|"If MySQL active"| MySQL_DB
+    DB_Adapter -.->|"If MySQL offline"| SQLite_DB
+```
+
+---
+
+### 2. Real-Time Multi-Device Adherence & Alert Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Patient as 👤 Patient (Mobile Device)
+    participant Server as ⚙️ CareDose Server (Express API)
+    participant DB as 🗄️ Relational Database (MySQL / SQLite)
+    actor Caregiver as 🩺 Caregiver (Laptop / Desktop)
+
+    Patient->>Server: PATCH /api/doses/:id/status { status: 'taken' }
+    Note over Server: verifyToken checks Patient JWT & validates slot
+    Server->>DB: UPDATE dose_logs SET status='taken', logged_at=NOW()
+    Server->>DB: UPDATE medicines SET stock_qty = stock_qty - 1
+    DB-->>Server: Rows affected (Stock auto-decremented)
+    Server-->>Patient: 200 OK (Dose logged, Stock updated)
+
+    Note over Caregiver: Remote Caregiver inspects patient
+    Caregiver->>Server: GET /api/caregivers/alerts & /reports/adherence
+    Server->>DB: Aggregates taken vs. missed doses & remaining stock
+    DB-->>Server: Returns live compliance % & active safety alerts
+    Server-->>Caregiver: 200 OK (Updated adherence chart & safe status)
+```
+
+---
+
+### 3. Technology Stack Breakdown
+
+| Layer | Technologies & Libraries | Key Responsibilities |
+| :--- | :--- | :--- |
+| **Presentation (Frontend)** | React 19, Vite 8, Tailwind CSS v4, Lucide React | Responsive UI, state management, relative timing tags, compliance charts, and micro-animations |
+| **Application (Backend)** | Node.js, Express.js 4.19, CORS, Dotenv | REST API routing, business logic, inventory calculation, schedule auto-generation |
+| **Security & Hardening** | JSON Web Tokens (`jsonwebtoken`), `bcryptjs`, Rate Limiter | JWT session validation, role authorization, bcrypt salt-round 10, brute-force mitigation |
+| **Data Layer (Database)** | MySQL 8.0+ (`mysql2/promise`) / SQLite3 (`sqlite3`) | Relational integrity, foreign keys, prepared statements, zero-config embedded fallback |
+| **DevOps & Deployment** | Render, Single-Service Static Serving | Automated cloud CI/CD, production builds, single-port fullstack reverse proxy |
 
 ---
 
