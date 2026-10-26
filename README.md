@@ -14,7 +14,7 @@
 
 ```text
 CareDose/
-├── client/                     # Frontend (React 19, Vite, Tailwind CSS, Lucide Icons)
+├── frontend/                   # Frontend (React 19, Vite, Tailwind CSS, Lucide Icons)
 │   ├── public/                 # Static assets & icons
 │   ├── src/
 │   │   ├── assets/             # Images and logos
@@ -34,7 +34,7 @@ CareDose/
 │   │   └── main.jsx
 │   ├── package.json
 │   └── vite.config.js          # Vite config with /api reverse proxy to :5000
-├── server/                     # Backend REST API (Node.js, Express, JWT, Bcrypt)
+├── backend/                    # Backend REST API (Node.js, Express, JWT, Bcrypt)
 │   ├── config/
 │   │   └── db.js               # Multi-engine DB connector (MySQL with auto SQLite fallback)
 │   ├── middleware/
@@ -199,7 +199,7 @@ appointments (id, patient_id, doctor_name, date_time, notes, created_at)
 
 ### Prerequisites
 - **Node.js**: v18 or higher
-- **MySQL**: (Optional — if not installed or running, the server automatically uses the built-in embedded SQLite database `server/caredose_local.db`)
+- **MySQL**: (Optional — if not installed or running, the server automatically uses the built-in embedded SQLite database `backend/caredose_local.db`)
 
 ---
 
@@ -222,16 +222,16 @@ npm run dev
 
 ### Option B: Separate Terminal Startup
 
-#### 1. Backend Setup (`/server`)
+#### 1. Backend Setup (`/backend`)
 
 ```bash
-cd server
+cd backend
 npm install
 npm start
 # REST API listening at http://localhost:5000
 ```
 
-*Optional MySQL configuration in `server/.env`:*
+*Optional MySQL configuration in `backend/.env`:*
 ```env
 PORT=5000
 JWT_SECRET=caredose_super_secret_jwt_key_2026_healthcare_secure
@@ -245,10 +245,10 @@ NODE_ENV=development
 
 *(To use MySQL, import `database/schema.sql` and `database/seed.sql`. If MySQL is not running, embedded SQLite activates automatically).*
 
-#### 2. Frontend Setup (`/client`)
+#### 2. Frontend Setup (`/frontend`)
 
 ```bash
-cd client
+cd frontend
 npm install
 npm run dev
 # React app opens at http://localhost:3000

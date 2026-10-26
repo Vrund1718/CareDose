@@ -50,13 +50,13 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api', scheduleRoutes);
 
-// Serve frontend build if client/dist exists (unified single-service deployment)
-const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
-if (fs.existsSync(clientDistPath)) {
-  app.use(express.static(clientDistPath));
+// Serve frontend build if frontend/dist exists (unified single-service deployment)
+const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) return next();
-    res.sendFile(path.join(clientDistPath, 'index.html'));
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
   });
 }
 
