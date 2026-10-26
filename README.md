@@ -222,7 +222,7 @@ npm run dev
 
 ### Option B: Separate Terminal Startup
 
-#### 1. Backend Setup (`/backend`)
+#### 1. Backend Setup (`/backend`) 
 
 ```bash
 cd backend
