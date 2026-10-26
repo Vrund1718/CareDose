@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Pill, Plus, Calendar, Clock, AlertTriangle, CheckCircle2, RefreshCw, Copy, Check, Users, Edit3, Trash2, HeartHandshake, Search, QrCode, ShieldCheck } from 'lucide-react';
+import { Pill, Plus, Calendar, Clock, AlertTriangle, CheckCircle2, RefreshCw, Copy, Check, Users, Edit3, Trash2, HeartHandshake, Search } from 'lucide-react';
 import { api } from '../services/api';
 import DoseCard from './DoseCard';
 import MedicineForm from './MedicineForm';
 import AppointmentModal from './AppointmentModal';
 import AdherenceReport from './AdherenceReport';
-import PatientPassportModal from './PatientPassportModal';
 import { formatIndianDateTime } from '../utils/dateUtils';
 
 export default function PatientDashboard({ user }) {
@@ -25,7 +24,6 @@ export default function PatientDashboard({ user }) {
   const [isMedModalOpen, setIsMedModalOpen] = useState(false);
   const [editingMed, setEditingMed] = useState(null);
   const [isApptModalOpen, setIsApptModalOpen] = useState(false);
-  const [isPassportModalOpen, setIsPassportModalOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
 
   useEffect(() => {
@@ -194,14 +192,6 @@ export default function PatientDashboard({ user }) {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setIsPassportModalOpen(true)}
-              className="py-3 px-5 rounded-2xl bg-teal-950/40 hover:bg-teal-950/60 backdrop-blur-md border border-white/30 text-white font-bold text-xs sm:text-sm flex items-center space-x-2 transition shadow-lg active:scale-95"
-            >
-              <QrCode className="w-4 h-4 text-teal-300 stroke-[2.5]" />
-              <span>Patient Passport & QR</span>
-            </button>
-
             <button
               onClick={() => { setEditingMed(null); setIsMedModalOpen(true); }}
               className="py-3 px-5 rounded-2xl bg-white hover:bg-teal-50 text-teal-900 font-bold text-xs sm:text-sm flex items-center space-x-2 transition shadow-lg active:scale-95"
@@ -410,36 +400,6 @@ export default function PatientDashboard({ user }) {
         {/* Right 1 Column: Caregiver Invite, Appointments & Adherence Stats */}
         <div className="space-y-8">
           
-          {/* Digital Emergency Passport Card */}
-          <div className="bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 text-white rounded-3xl p-6 shadow-lg border border-teal-500/30 space-y-4">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-2xl bg-teal-400/20 text-teal-300 flex items-center justify-center">
-                  <QrCode className="w-5 h-5 stroke-[2.2]" />
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-base">Digital Health Passport</h4>
-                  <p className="text-xs text-teal-200">Scannable emergency medical ID</p>
-                </div>
-              </div>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider border border-emerald-400/30">
-                Live QR
-              </span>
-            </div>
-
-            <p className="text-xs text-teal-100/90 leading-relaxed">
-              First responders or loved ones can scan your passport QR code directly from any phone camera to view active prescriptions and emergency caregiver contacts.
-            </p>
-
-            <button
-              onClick={() => setIsPassportModalOpen(true)}
-              className="w-full py-2.5 px-4 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 font-bold text-xs flex items-center justify-center space-x-2 transition shadow-md active:scale-95"
-            >
-              <QrCode className="w-4 h-4" />
-              <span>View & Scan Passport QR</span>
-            </button>
-          </div>
-
           {/* Caregiver Share Code Card */}
           <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-6 shadow-md space-y-4">
             <div className="flex items-center space-x-3">
@@ -541,14 +501,6 @@ export default function PatientDashboard({ user }) {
         isOpen={isApptModalOpen}
         onClose={() => setIsApptModalOpen(false)}
         onSave={handleSaveAppointment}
-      />
-
-      <PatientPassportModal
-        isOpen={isPassportModalOpen}
-        onClose={() => setIsPassportModalOpen(false)}
-        user={user}
-        medicines={medicines}
-        caregivers={myCaregivers}
       />
 
     </div>

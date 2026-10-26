@@ -168,13 +168,5 @@ export const api = {
       const res = await fetch(url, { headers: { ...getAuthHeader() } });
       return handleResponse(res);
     }
-  },
-
-  // Public Emergency Passport API (No auth required)
-  passport: {
-    get: async (code) => {
-      const res = await fetch(`${BASE_URL}/passport/${code}`);
-      return handleResponse(res);
-    }
   }
 };

@@ -4,27 +4,8 @@ import LandingPage from './components/LandingPage';
 import AuthModal from './components/AuthModal';
 import PatientDashboard from './components/PatientDashboard';
 import CaregiverDashboard from './components/CaregiverDashboard';
-import PatientPassportView from './components/PatientPassportView';
 import Toast from './components/Toast';
 import { api } from './services/api';
-
-// Helper to check if current URL is a patient passport route
-function getPassportCodeFromUrl() {
-  const path = window.location.pathname;
-  if (path.startsWith('/passport/')) {
-    const code = path.replace('/passport/', '').replace(/\/$/, '');
-    if (code) return decodeURIComponent(code);
-  }
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('passport')) {
-    return params.get('passport');
-  }
-  const hash = window.location.hash;
-  if (hash.startsWith('#/passport/')) {
-    return hash.replace('#/passport/', '').replace(/\/$/, '');
-  }
-  return null;
-}
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -32,15 +13,6 @@ export default function App() {
   const [toast, setToast] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authTab, setAuthTab] = useState('login');
-  const [passportCode, setPassportCode] = useState(getPassportCodeFromUrl());
-
-  useEffect(() => {
-    const handlePopState = () => {
-      setPassportCode(getPassportCodeFromUrl());
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -105,19 +77,6 @@ export default function App() {
           <p className="text-sm font-bold text-slate-600">Loading CareDose Platform...</p>
         </div>
       </div>
-    );
-  }
-
-  // If visitor scanned QR code or accessed /passport/:code
-  if (passportCode) {
-    return (
-      <PatientPassportView
-        passportCode={passportCode}
-        onBackToApp={() => {
-          window.history.pushState({}, '', '/');
-          setPassportCode(null);
-        }}
-      />
     );
   }
 
